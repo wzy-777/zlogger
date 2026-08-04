@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zlogger-mp"
+version = "0.1.0"
+description = "多进程安全的时间轮转日志封装：多进程共享同一日志文件时轮转不丢历史日志"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "wzy-777" }]
+keywords = ["logging", "rotating", "multiprocess", "TimedRotatingFileHandler"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: System :: Logging",
+]
+
+[project.urls]
+Homepage = "https://github.com/wzy-777/zlogger"
+
+[tool.setuptools]
+py-modules = ["zlogger"]
