@@ -79,12 +79,15 @@ class SafeTimedRotatingFileHandler(TimedRotatingFileHandler):
 
 
 class Logger:
-    def __init__(self, name: str, log_file: str = "app.log", log_dir: str = "log"):
+    def __init__(self, name: str, log_file: str = "app.log", log_dir: str = "log",
+                 console: bool = True):
         """
         创建一个日志记录器
         :param name: 记录器名称
         :param log_file: 日志文件名
         :param log_dir: 日志文件保存目录
+        :param console: 是否输出到控制台（stderr）。stderr 被重定向到日志文件时
+                        （如 systemd StandardError=append:）应设为 False，避免同一条日志重复落盘
         """
         self.logger = logging.getLogger(name)
         self.logger.setLevel(logging.DEBUG)
@@ -101,10 +104,12 @@ class Logger:
             datefmt="%Y-%m-%d %H:%M:%S"
         )
 
-        # 控制台 Handler
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.DEBUG)
-        console_handler.setFormatter(formatter)
+        # 控制台 Handler（console=False 时不注册，日志仅写入文件）
+        console_handler = None
+        if console:
+            console_handler = logging.StreamHandler()
+            console_handler.setLevel(logging.DEBUG)
+            console_handler.setFormatter(formatter)
 
         # 文件 Handler（使用改进的TimedRotatingFileHandler）
         file_handler = SafeTimedRotatingFileHandler(
@@ -123,7 +128,8 @@ class Logger:
             self.logger.handlers.clear()
 
         # 绑定 Handler
-        self.logger.addHandler(console_handler)
+        if console_handler:
+            self.logger.addHandler(console_handler)
         self.logger.addHandler(file_handler)
 
     def get_logger(self) -> logging.Logger:
@@ -135,9 +141,10 @@ class LoggerSingleton:
     _logger = None
 
     @classmethod
-    def get_logger(cls, name="websocket", log_file="websocket.log", log_dir="log"):
+    def get_logger(cls, name="websocket", log_file="websocket.log", log_dir="log",
+                   console=True):
         if cls._logger is None:
-            cls._logger = Logger(name, log_file, log_dir).get_logger()
+            cls._logger = Logger(name, log_file, log_dir, console=console).get_logger()
         return cls._logger
 
 # 使用示例
